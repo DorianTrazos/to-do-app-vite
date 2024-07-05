@@ -81,7 +81,7 @@ const insertTasks = tasks => {
 
     const newTaskDelete = document.createElement('img');
     newTaskDelete.classList.add('task-delete');
-    newTaskDelete.src = 'assets/images/icon-cross.svg';
+    newTaskDelete.src = './assets/images/icon-cross.svg';
 
     newTaskDelete.addEventListener('click', () => deleteTask(task.id));
 
