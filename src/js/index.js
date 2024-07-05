@@ -11,6 +11,10 @@ const allFilters = document.querySelectorAll('.filter');
 
 let darkMode = false;
 
+if (window.matchMedia('(prefers-color-scheme:dark)').matches) {
+  darkMode = true;
+}
+
 let allTasks = [
   {
     id: Date.now(),
@@ -20,16 +24,18 @@ let allTasks = [
 ];
 
 const changeTheme = () => {
-  darkMode = !darkMode;
-
   if (darkMode) {
     document.body.classList.add('dark');
+    document.body.classList.remove('light');
     switchElement.src = './assets/images/icon-sun.svg';
   } else {
+    document.body.classList.add('light');
     document.body.classList.remove('dark');
     switchElement.src = './assets/images/icon-moon.svg';
   }
 };
+
+changeTheme();
 
 const getFilteredTasks = () => {
   const currentFilter = document.querySelector('.filter--active').dataset.filter;
@@ -99,7 +105,6 @@ const saveTask = task => {
 
 const deleteTask = id => {
   allTasks = allTasks.filter(task => task.id !== id);
-  console.log(allTasks);
   insertTasks(allTasks);
 };
 
@@ -126,7 +131,7 @@ const createTask = task => {
 };
 
 const changeFilter = filterTarget => {
-  [...allFilters].forEach(filter => {
+  allFilters.forEach(filter => {
     filter.classList.remove('filter--active');
   });
 
@@ -146,11 +151,14 @@ const deleteAllCompleteTasks = () => {
 
 insertTasks(allTasks);
 
-switchElement.addEventListener('click', changeTheme);
+switchElement.addEventListener('click', () => {
+  darkMode = !darkMode;
+  changeTheme();
+});
 
 formElement.addEventListener('submit', event => {
   event.preventDefault();
-  if (event.target.task.value === '') return;
+  if (!event.target.task.value) return;
   createTask(event.target.task.value);
   event.target.reset();
 });
@@ -158,6 +166,11 @@ formElement.addEventListener('submit', event => {
 deleteCompleteElement.addEventListener('click', deleteAllCompleteTasks);
 
 filtersElement.addEventListener('click', event => {
-  if (event.target.tagName !== 'BUTTON') return;
+  if (!event.target.dataset.filter) return;
   filterTasks(event.target);
+});
+
+window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', event => {
+  darkMode = event.matches;
+  changeTheme();
 });

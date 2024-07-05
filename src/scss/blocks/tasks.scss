@@ -1,4 +1,5 @@
 @use '../mixins/responsive.scss' as *;
+@use '../mixins/hover.scss' as *;
 
 .form {
   position: relative;
@@ -48,11 +49,11 @@
   padding: 1rem 1.25rem;
   border-bottom: 1px solid rgba(151, 151, 151, 0.3);
   cursor: pointer;
-}
 
-@media (hover: hover) {
-  .task-container:hover .task-delete {
-    display: block;
+  @include hover {
+    & .task-delete {
+      display: block;
+    }
   }
 }
 
