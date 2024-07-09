@@ -34,10 +34,10 @@ const countItemsLeft = () => {
   }
 };
 
-const insertTasks = () => {
+const insertTasks = (tasksToRender = allTasks) => {
   const fragment = document.createDocumentFragment();
 
-  allTasks.forEach(task => {
+  tasksToRender.forEach(task => {
     const newTaskContainer = document.createElement('div');
     newTaskContainer.classList.add('task-container');
 
@@ -105,6 +105,25 @@ const deleteAllCompletedTasks = () => {
   insertTasks();
 };
 
+const getFilteredTasks = filter => {
+  let filteredTasks = allTasks;
+  if (filter === 'active') {
+    filteredTasks = allTasks.filter(task => !task.completed);
+  } else if (filter === 'completed') {
+    filteredTasks = allTasks.filter(task => task.completed);
+  }
+
+  return filteredTasks;
+};
+
+const filterTasks = event => {
+  if (!event.target.dataset.filter) return;
+  allFilters.forEach(filter => filter.classList.remove('filter--active'));
+  event.target.classList.add('filter--active');
+  const filteredTasks = getFilteredTasks(event.target.dataset.filter);
+  insertTasks(filteredTasks);
+};
+
 insertTasks();
 
 formElement.addEventListener('submit', event => {
@@ -116,3 +135,5 @@ formElement.addEventListener('submit', event => {
 });
 
 deleteCompleteElement.addEventListener('click', deleteAllCompletedTasks);
+
+filtersElement.addEventListener('click', filterTasks);
