@@ -1,7 +1,4 @@
 // El styles lo importamos aquí, ya se carga después al compilar todo
-import iconCross from '../assets/images/icon-cross.svg';
-import iconMoon from '../assets/images/icon-moon.svg';
-import iconSun from '../assets/images/icon-sun.svg';
 import '../scss/styles.scss';
 
 const tasksElement = document.getElementById('tasks');
@@ -12,11 +9,11 @@ const deleteCompleteElement = document.getElementById('delete-completed');
 const switchElement = document.getElementById('switch');
 const allFilters = document.querySelectorAll('.filter');
 
-let darkMode = false;
-
-if (window.matchMedia('(prefers-color-scheme:dark)').matches) {
-  darkMode = true;
-}
+const FILTERS = {
+  ALL: 'all',
+  ACTIVE: 'active',
+  COMPLETED: 'completed'
+};
 
 let allTasks = [
   {
@@ -26,69 +23,74 @@ let allTasks = [
   }
 ];
 
+let currentFilter = FILTERS.ALL;
+
+let darkMode = false;
+
 const changeTheme = () => {
+  darkMode = !darkMode;
+  document.body.classList.remove('light', 'dark');
   if (darkMode) {
     document.body.classList.add('dark');
-    document.body.classList.remove('light');
-    switchElement.src = iconSun;
+    switchElement.src = '../assets/images/icon-sun.svg';
   } else {
     document.body.classList.add('light');
-    document.body.classList.remove('dark');
-    switchElement.src = iconMoon;
+    switchElement.src = '../assets/images/icon-moon.svg';
   }
 };
 
-changeTheme();
+const countItemsLeft = () => {
+  const itemsLeft = allTasks.filter(task => !task.completed).length;
+  if (allTasks.length === 0) {
+    itemsLeftElement.textContent = 'No Tasks';
+    return;
+  }
 
-const getFilteredTasks = () => {
-  const currentFilter = document.querySelector('.filter--active').dataset.filter;
+  if (itemsLeft === 0) {
+    itemsLeftElement.textContent = 'All tasks completed!';
+  } else {
+    itemsLeftElement.textContent = `${itemsLeft} items left.`;
+  }
+};
+
+const filterTasks = () => {
   let filteredTasks = allTasks;
 
-  if (currentFilter === 'active') {
+  if (currentFilter === FILTERS.ACTIVE) {
     filteredTasks = allTasks.filter(task => !task.completed);
-  } else if (currentFilter === 'completed') {
+  } else if (currentFilter === FILTERS.COMPLETED) {
     filteredTasks = allTasks.filter(task => task.completed);
   }
 
   return filteredTasks;
 };
 
-const countItemsLeft = () => {
-  const itemsLeft = allTasks.filter(task => !task.completed).length;
-  if (allTasks.length === 0) {
-    itemsLeftElement.textContent = 'No tasks';
-  } else if (itemsLeft === 0) {
-    itemsLeftElement.textContent = 'All tasks completed!';
-  } else {
-    itemsLeftElement.textContent = `${itemsLeft} items left`;
-  }
-};
-
-const insertTasks = tasks => {
+const insertTasks = () => {
   const fragment = document.createDocumentFragment();
+  const filteredTasks = filterTasks();
 
-  tasks.forEach(task => {
+  filteredTasks.forEach(todo => {
     const newTaskContainer = document.createElement('div');
     newTaskContainer.classList.add('task-container');
 
     const newTaskCheck = document.createElement('input');
+    newTaskCheck.id = todo.id;
     newTaskCheck.classList.add('task-check');
     newTaskCheck.type = 'checkbox';
-    newTaskCheck.checked = task.completed;
-    newTaskCheck.id = task.id;
+    newTaskCheck.checked = todo.completed;
+
+    newTaskCheck.addEventListener('change', () => completeTask(todo.id));
 
     const newTaskText = document.createElement('label');
     newTaskText.classList.add('task-text');
-    newTaskText.textContent = task.task;
-    newTaskText.htmlFor = task.id;
+    newTaskText.textContent = todo.task;
+    newTaskText.htmlFor = todo.id;
 
     const newTaskDelete = document.createElement('img');
     newTaskDelete.classList.add('task-delete');
-    newTaskDelete.src = iconCross;
+    newTaskDelete.src = './assets/images/icon-cross.svg';
 
-    newTaskDelete.addEventListener('click', () => deleteTask(task.id));
-
-    newTaskCheck.addEventListener('change', () => completeTask(task.id));
+    newTaskDelete.addEventListener('click', () => deleteTask(todo.id));
 
     newTaskContainer.append(newTaskCheck, newTaskText, newTaskDelete);
 
@@ -97,30 +99,28 @@ const insertTasks = tasks => {
 
   tasksElement.textContent = '';
   tasksElement.append(fragment);
+
   countItemsLeft();
-};
-
-const saveTask = task => {
-  allTasks.push(task);
-  const tasksToRender = getFilteredTasks();
-  insertTasks(tasksToRender);
-};
-
-const deleteTask = id => {
-  allTasks = allTasks.filter(task => task.id !== id);
-  insertTasks(allTasks);
 };
 
 const completeTask = id => {
   allTasks = allTasks.map(task => {
     if (task.id === id) {
       task.completed = !task.completed;
+
+      // true = !true
+      // false = !false
     }
     return task;
   });
 
-  const filteredTasks = getFilteredTasks();
-  insertTasks(filteredTasks);
+  insertTasks();
+  console.log(allTasks);
+};
+
+const deleteTask = id => {
+  allTasks = allTasks.filter(task => task.id !== id);
+  insertTasks();
 };
 
 const createTask = task => {
@@ -130,34 +130,23 @@ const createTask = task => {
     completed: false
   };
 
-  saveTask(newTask);
+  allTasks.push(newTask);
+
+  insertTasks();
 };
 
-const changeFilter = filterTarget => {
-  allFilters.forEach(filter => {
-    filter.classList.remove('filter--active');
-  });
-
+const setFilter = filterTarget => {
+  allFilters.forEach(filter => filter.classList.remove('filter--active'));
   filterTarget.classList.add('filter--active');
+  insertTasks();
 };
 
-const filterTasks = filterTarget => {
-  changeFilter(filterTarget);
-  const filteredTasks = getFilteredTasks(filterTarget);
-  insertTasks(filteredTasks);
-};
-
-const deleteAllCompleteTasks = () => {
+const deleteAllCompletedTasks = () => {
   allTasks = allTasks.filter(task => !task.completed);
-  insertTasks(allTasks);
+  insertTasks();
 };
 
-insertTasks(allTasks);
-
-switchElement.addEventListener('click', () => {
-  darkMode = !darkMode;
-  changeTheme();
-});
+insertTasks();
 
 formElement.addEventListener('submit', event => {
   event.preventDefault();
@@ -166,14 +155,13 @@ formElement.addEventListener('submit', event => {
   event.target.reset();
 });
 
-deleteCompleteElement.addEventListener('click', deleteAllCompleteTasks);
-
 filtersElement.addEventListener('click', event => {
-  if (!event.target.dataset.filter) return;
-  filterTasks(event.target);
+  const filter = event.target.dataset.filter;
+  if (!filter || currentFilter === filter) return;
+  currentFilter = filter;
+  setFilter(event.target);
 });
 
-window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', event => {
-  darkMode = event.matches;
-  changeTheme();
-});
+deleteCompleteElement.addEventListener('click', deleteAllCompletedTasks);
+
+switchElement.addEventListener('click', changeTheme);
