@@ -1,5 +1,4 @@
 // El styles lo importamos aquí, ya se carga después al compilar todo
-import iconSun from '../assets/images/icon-sun.svg';
 import '../scss/styles.scss';
 
 const tasksElement = document.getElementById('tasks');
@@ -28,11 +27,11 @@ const changeTheme = () => {
   if (darkMode) {
     document.body.classList.add('dark');
     document.body.classList.remove('light');
-    switchElement.src = iconSun;
+    switchElement.src = './assets/icon-sun.svg';
   } else {
     document.body.classList.add('light');
     document.body.classList.remove('dark');
-    switchElement.src = './assets/images/icon-moon.svg';
+    switchElement.src = './assets/icon-moon.svg';
   }
 };
 
@@ -82,7 +81,7 @@ const insertTasks = tasks => {
 
     const newTaskDelete = document.createElement('img');
     newTaskDelete.classList.add('task-delete');
-    newTaskDelete.src = './assets/images/icon-cross.svg';
+    newTaskDelete.src = './assets/icon-cross.svg';
 
     newTaskDelete.addEventListener('click', () => deleteTask(task.id));
 

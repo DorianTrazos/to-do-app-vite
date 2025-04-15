@@ -32,10 +32,10 @@ const changeTheme = () => {
   document.body.classList.remove('light', 'dark');
   if (darkMode) {
     document.body.classList.add('dark');
-    switchElement.src = '../assets/images/icon-sun.svg';
+    switchElement.src = '../assets/icon-sun.svg';
   } else {
     document.body.classList.add('light');
-    switchElement.src = '../assets/images/icon-moon.svg';
+    switchElement.src = '../assets/icon-moon.svg';
   }
 };
 
@@ -88,7 +88,7 @@ const insertTasks = () => {
 
     const newTaskDelete = document.createElement('img');
     newTaskDelete.classList.add('task-delete');
-    newTaskDelete.src = './assets/images/icon-cross.svg';
+    newTaskDelete.src = './assets/icon-cross.svg';
 
     newTaskDelete.addEventListener('click', () => deleteTask(todo.id));
 
